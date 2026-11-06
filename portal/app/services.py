@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.choices import NEXT_STATUS
-from app.models import Application, Event, Review, User
+from app.models import Application, Event, Review, Status, User
 from app.security import hash_password, verify_password
 
 STATUS_LABELS = {"new": "Новая", "assigned": "Назначено", "done": "Завершено"}
@@ -85,7 +85,9 @@ class ApplicationService:
         ) is not None
 
     def create(self, user, event, form):
-        app = Application(user_id=user.id, event_id=event.id, room=form.room, payment=form.payment, comment=form.comment)
+        new_status = self.db.scalar(select(Status).where(Status.code == "new"))
+        app = Application(user_id=user.id, event_id=event.id, status_id=new_status.id, room=form.room, payment=form.payment,
+                          comment=form.comment)
         self.db.add(app)
         self.db.commit()
         return app
@@ -101,7 +103,7 @@ class ApplicationService:
         """Заявки для панели администратора с фильтрами по статусу, мероприятию и логину."""
         query = select(Application).join(User).order_by(Application.created_at.desc())
         if status in STATUS_LABELS:
-            query = query.where(Application.status == status)
+            query = query.join(Status).where(Status.code == status)
         if event_id:
             query = query.where(Application.event_id == event_id)
         if q:
@@ -113,7 +115,7 @@ class ApplicationService:
         nxt = NEXT_STATUS.get(app.status)
         if nxt is None:
             return False
-        app.status = nxt
+        app.status_id = self.db.scalar(select(Status.id).where(Status.code == nxt))
         self.db.commit()
         return True
 

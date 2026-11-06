@@ -21,9 +21,18 @@ def run_migrations_offline() -> None:
 def run_migrations_online() -> None:
     # SQLite не умеет менять столбцы на месте, поэтому render_as_batch
     with engine.connect() as connection:
+        # при пересоздании таблицы (batch) проверка внешних ключей мешает, на время миграции выключаем,
+        # а после миграции проверяем всю базу целиком
+        connection.exec_driver_sql("PRAGMA foreign_keys = OFF")
         context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True)
         with context.begin_transaction():
             context.run_migrations()
+        connection.commit()
+        broken = connection.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+        if broken:
+            raise RuntimeError("После миграции нарушены внешние ключи: %s" % broken)
+        connection.commit()
+        connection.exec_driver_sql("PRAGMA foreign_keys = ON")
 
 
 if context.is_offline_mode():

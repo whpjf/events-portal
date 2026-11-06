@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 
 from app.database import SessionLocal
-from app.models import Application, Event, Review, User
+from app.models import Application, Event, Review, Status, User
 from app.security import hash_password
 
 EVENTS = [
@@ -58,9 +58,10 @@ def run():
         (oleg, events[3], "new", "Читальный зал", "Наличные при входе"),
         (oleg, events[5], "new", "Основной зал", "Банковская карта"),
     ]
+    status_ids = {s.code: s.id for s in db.query(Status)}
     apps = []
     for user, event, status, room, payment in rows:
-        a = Application(user_id=user.id, event_id=event.id, status=status, room=room, payment=payment, created_at=now - timedelta(days=5))
+        a = Application(user_id=user.id, event_id=event.id, status_id=status_ids[status], room=room, payment=payment, created_at=now - timedelta(days=5))
         db.add(a)
         apps.append(a)
     db.commit()
