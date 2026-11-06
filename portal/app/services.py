@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -32,11 +34,19 @@ class EventService:
         self.db = db
 
     def search(self, q=""):
-        if not q:
-            return list(self.db.scalars(select(Event).order_by(Event.event_date)))
-        # поиск по названию, значение q подставляется параметром, а не строкой
-        query = select(Event).where(Event.title.like(f"%{q}%")).order_by(Event.event_date)
-        return list(self.db.scalars(query))
+        query = select(Event).order_by(Event.event_date)
+        if q:
+            # поиск по названию, значение q подставляется параметром, а не строкой
+            query = query.where(Event.title.like(f"%{q}%"))
+        return self.upcoming_first(list(self.db.scalars(query)))
+
+    @staticmethod
+    def upcoming_first(events):
+        """Сначала будущие по возрастанию даты, потом прошедшие, самые свежие первыми."""
+        now = datetime.now()
+        future = [e for e in events if e.event_date >= now]
+        past = sorted((e for e in events if e.event_date < now), key=lambda e: e.event_date, reverse=True)
+        return future + past
 
     def get(self, event_id):
         return self.db.get(Event, event_id)
