@@ -8,6 +8,7 @@ from app.services import STATUS_LABELS
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
 templates.env.filters["status_label"] = lambda s: STATUS_LABELS.get(s, s)
+templates.env.filters["img"] = lambda name, width: f"/static/img/events/{name.rsplit('.', 1)[0]}-{width}.webp"
 templates.env.filters["date_ru"] = lambda d: d.strftime("%d.%m.%Y %H:%M")
 
 

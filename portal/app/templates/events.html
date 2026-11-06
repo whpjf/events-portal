@@ -1,18 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Мероприятия</h1>
+<h1>Афиша мероприятий</h1>
+<p class="lead">Лекции, мастер-классы и прогулки на 15-40 человек. Выберите мероприятие и отправьте заявку.</p>
 <form method="get" action="/" class="search">
-  <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию">
+  <input type="search" name="q" value="{{ q }}" placeholder="Поиск по названию" aria-label="Поиск по названию">
   <button type="submit">Найти</button>
 </form>
 {% if not events %}<p>Ничего не найдено.</p>{% endif %}
 <div class="cards">
   {% for e in events %}
-  <article class="card">
-    <img src="/static/img/events/{{ e.image }}" alt="{{ e.title }}">
-    <h2><a href="/events/{{ e.id }}">{{ e.title }}</a></h2>
-    <p>{{ e.event_date|date_ru }}, {{ e.place }}</p>
-    {% if e.event_date < now %}<p class="muted">Мероприятие прошло</p>{% endif %}
+  <article class="card{% if e.event_date < now %} past{% endif %}">
+    <div class="card-photo">
+      <img src="{{ e.image|img(640) }}" srcset="{{ e.image|img(640) }} 640w, {{ e.image|img(1280) }} 1280w"
+           sizes="(max-width: 720px) 100vw, 340px" width="640" height="480" alt="{{ e.title }}" loading="lazy">
+      <span class="date-tag">{{ e.event_date.strftime('%d.%m.%Y') }}</span>
+    </div>
+    <div class="card-body">
+      <h2><a href="/events/{{ e.id }}">{{ e.title }}</a></h2>
+      <p class="place">{{ e.event_date.strftime('%H:%M') }}, {{ e.place }}</p>
+      {% if e.event_date < now %}<p class="past-mark">Мероприятие прошло</p>{% endif %}
+    </div>
   </article>
   {% endfor %}
 </div>

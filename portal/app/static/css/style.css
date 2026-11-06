@@ -1,19 +1,148 @@
-body { font-family: Arial, sans-serif; margin: 0; color: #222; background: #fff; }
-.top { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #eee; }
-.top nav a { margin-left: 14px; }
-.brand { font-weight: bold; font-size: 20px; text-decoration: none; color: #222; }
-main { max-width: 980px; margin: 20px auto; padding: 0 16px; }
-footer { text-align: center; color: #666; padding: 20px; }
-.cards { display: flex; flex-wrap: wrap; gap: 16px; }
-.card { width: 300px; border: 1px solid #ccc; padding: 10px; }
-.card img { width: 100%; height: 180px; object-fit: cover; }
-.hero { max-width: 100%; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #999; padding: 6px 8px; text-align: left; }
-.form label { display: block; margin-bottom: 10px; }
-.form input, .form textarea { display: block; width: 320px; padding: 6px; }
-.errors { color: #b00020; }
-.flash { background: #e6f2e6; padding: 8px; }
-.muted { color: #666; }
+/* Шрифты лежат в проекте: Unbounded для заголовков, Golos Text для текста */
+@font-face {
+  font-family: "Golos Text";
+  src: url("/static/fonts/golos-cyrillic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/static/fonts/golos-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+@font-face {
+  font-family: "Unbounded";
+  src: url("/static/fonts/unbounded-cyrillic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Unbounded";
+  src: url("/static/fonts/unbounded-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+
+:root {
+  --ink: #14161b;
+  --paper: #f1f3f5;
+  --white: #ffffff;
+  --accent: #c4202f;
+  --accent-dark: #a01a27;
+  --accent-soft: #fbe4e6;
+  --muted: #5b616b;
+  --line: #d5d9de;
+  --blue: #2b5fa8;
+  --green: #2f7d4f;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 16px/1.55 "Golos Text", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+h1, h2, h3, .brand { font-family: "Unbounded", "Golos Text", sans-serif; font-weight: 600; line-height: 1.25; }
+h1 { font-size: clamp(1.5rem, 4.5vw, 2.4rem); margin: 0.6em 0 0.5em; }
+h2 { font-size: 1.1rem; margin: 0 0 0.4em; }
+a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+img { max-width: 100%; height: auto; display: block; }
+
+/* шапка */
+.top { background: var(--white); border-bottom: 3px solid var(--ink); position: relative; }
+.top-in { max-width: 1120px; margin: 0 auto; padding: 0 20px; min-height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.brand { font-size: 1.1rem; text-decoration: none; }
+.brand span { color: var(--accent); }
+nav { display: flex; align-items: center; gap: 4px; }
+nav a { min-height: 44px; padding: 0 12px; display: inline-flex; align-items: center; text-decoration: none; }
+nav a:hover { color: var(--accent); }
+nav form { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 0 8px; }
+.who { color: var(--muted); font-size: 0.9rem; }
+.menu-btn { display: none; }
+
+main { max-width: 1120px; margin: 0 auto; padding: 8px 20px 0; }
+footer { max-width: 1120px; margin: 48px auto 0; padding: 24px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+
+/* кнопки */
+button, .btn {
+  font: inherit; font-weight: 600;
+  min-height: 44px; padding: 0 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ink); color: var(--white);
+  border: 2px solid var(--ink); border-radius: 0;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+button:hover, .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--white); }
+button:active, .btn:active { transform: translateY(1px); }
+.btn-ghost { background: var(--white); color: var(--ink); }
+nav button { min-height: 36px; padding: 0 14px; background: var(--white); color: var(--ink); }
+
+/* афиша */
+.lead { max-width: 60ch; color: var(--muted); margin: 0 0 20px; }
+.search { display: flex; gap: 8px; max-width: 480px; margin-bottom: 24px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.card { background: var(--white); border: 1px solid var(--line); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(20, 22, 27, 0.12); }
+.card-photo { position: relative; }
+.card-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.date-tag { position: absolute; left: 0; bottom: 0; background: var(--ink); color: var(--white); padding: 6px 12px; font-family: "Unbounded", sans-serif; font-size: 0.8rem; }
+.card-body { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card-body h2 a { text-decoration: none; }
+.card-body h2 a::after { content: ""; position: absolute; inset: 0; }
+.card { position: relative; }
+.place { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.card.past .card-photo img { filter: grayscale(1); opacity: 0.8; }
+.past-mark { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+/* страница мероприятия */
+.hero { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 20px; }
+.event-meta { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 20px; }
+.event-meta dt { color: var(--muted); }
+.event-meta dd { margin: 0; }
+.event-text { max-width: 68ch; }
+
+/* формы */
+.form { max-width: 440px; background: var(--white); border: 1px solid var(--line); padding: 24px; }
+.form label { display: block; margin-bottom: 16px; font-weight: 600; }
+input, select, textarea {
+  font: inherit; font-weight: 400; width: 100%; min-height: 44px; padding: 8px 12px;
+  border: 2px solid var(--ink); border-radius: 0; background: var(--white); color: var(--ink);
+  display: block; margin-top: 4px;
+}
+input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.errors { list-style: none; margin: 0 0 16px; padding: 12px 16px; background: var(--accent-soft); border-left: 4px solid var(--accent); max-width: 440px; }
+.errors li + li { margin-top: 4px; }
+.flash { background: var(--ink); color: var(--white); padding: 12px 16px; margin: 16px 0 0; }
+.muted { color: var(--muted); }
 .inline { display: inline; }
-.btn { display: inline-block; padding: 8px 14px; background: #333; color: #fff; text-decoration: none; }
+
+/* таблицы и статусы */
+table { width: 100%; border-collapse: collapse; background: var(--white); }
+th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: middle; }
+th { font-size: 0.85rem; color: var(--muted); font-weight: 600; background: var(--paper); }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border: 1px solid currentColor; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.badge-new { color: var(--muted); }
+.badge-assigned { color: var(--blue); }
+.badge-done { color: var(--green); }
+
+/* телефон */
+@media (max-width: 720px) {
+  .top-in { padding: 0 16px; }
+  .menu-btn { display: inline-flex; min-height: 44px; background: var(--white); color: var(--ink); }
+  nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); border-bottom: 3px solid var(--ink); flex-direction: column; align-items: stretch; padding: 8px 16px 16px; z-index: 5; }
+  nav.open { display: flex; }
+  nav form { margin: 8px 0 0; justify-content: space-between; }
+  main { padding: 8px 16px 0; }
+  .form { max-width: none; padding: 20px; }
+  .form button { width: 100%; }
+  .search { max-width: none; }
+}

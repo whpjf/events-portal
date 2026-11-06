@@ -11,7 +11,7 @@
     <td>{{ a.event.event_date|date_ru }}</td>
     <td>{{ a.room }}</td>
     <td>{{ a.payment }}</td>
-    <td>{{ a.status|status_label }}</td>
+    <td><span class="badge badge-{{ a.status }}">{{ a.status|status_label }}</span></td>
   </tr>
   {% endfor %}
 </table>
