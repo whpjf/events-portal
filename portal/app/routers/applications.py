@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import login_required
+from app.deps import RecordId, login_required
 from app.choices import PAYMENTS, ROOMS
 from app.schemas import ApplicationForm, ReviewForm, parse
 from app.security import verify_csrf
@@ -14,17 +16,20 @@ router = APIRouter()
 
 
 @router.get("/events/{event_id}/apply")
-def apply_page(request: Request, event_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+def apply_page(request: Request, event_id: RecordId, db: Session = Depends(get_db), user=Depends(login_required)):
     event = EventService(db).get(event_id)
     if event is None:
         raise HTTPException(404)
+    if event.event_date < datetime.now():
+        request.session["flash"] = "Мероприятие уже прошло, заявки не принимаются"
+        return RedirectResponse(f"/events/{event.id}", status_code=303)
     return render(request, "apply.html", user, event=event, errors={}, values={}, rooms=ROOMS, payments=PAYMENTS)
 
 
 @router.post("/events/{event_id}/apply", dependencies=[Depends(verify_csrf)])
 def apply(
     request: Request,
-    event_id: int,
+    event_id: RecordId,
     room: str = Form(""),
     payment: str = Form(""),
     comment: str = Form(""),
@@ -37,7 +42,9 @@ def apply(
     data = dict(room=room, payment=payment, comment=comment)
     form, errors = parse(ApplicationForm, data)
     service = ApplicationService(db)
-    if form and service.exists(user.id, event.id):
+    if event.event_date < datetime.now():
+        errors["form"] = "Мероприятие уже прошло, заявки не принимаются"
+    elif form and service.exists(user.id, event.id):
         errors["form"] = "Вы уже подали заявку на это мероприятие"
     if errors:
         return render(request, "apply.html", user, status_code=422, event=event, errors=errors, values=data, rooms=ROOMS, payments=PAYMENTS)
@@ -60,7 +67,7 @@ def own_new_application(db, app_id, user):
 
 
 @router.get("/my/{app_id}/edit")
-def application_edit(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+def application_edit(request: Request, app_id: RecordId, db: Session = Depends(get_db), user=Depends(login_required)):
     app = own_new_application(db, app_id, user)
     if app.status != "new":
         request.session["flash"] = "Заявку можно менять, пока она новая"
@@ -73,7 +80,7 @@ def application_edit(request: Request, app_id: int, db: Session = Depends(get_db
 @router.post("/my/{app_id}/edit", dependencies=[Depends(verify_csrf)])
 def application_update(
     request: Request,
-    app_id: int,
+    app_id: RecordId,
     room: str = Form(""),
     payment: str = Form(""),
     comment: str = Form(""),
@@ -95,7 +102,7 @@ def application_update(
 
 
 @router.post("/my/{app_id}/cancel", dependencies=[Depends(verify_csrf)])
-def application_cancel(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+def application_cancel(request: Request, app_id: RecordId, db: Session = Depends(get_db), user=Depends(login_required)):
     app = own_new_application(db, app_id, user)
     if app.status != "new":
         request.session["flash"] = "Отменить можно только новую заявку"
@@ -125,7 +132,7 @@ def own_done_application(db, app_id, user):
 
 
 @router.get("/my/{app_id}/review")
-def review_page(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+def review_page(request: Request, app_id: RecordId, db: Session = Depends(get_db), user=Depends(login_required)):
     app = own_done_application(db, app_id, user)
     if app.status != "done" or app.review:
         request.session["flash"] = "Отзыв можно оставить один раз и только после завершения мероприятия"
@@ -136,7 +143,7 @@ def review_page(request: Request, app_id: int, db: Session = Depends(get_db), us
 @router.post("/my/{app_id}/review", dependencies=[Depends(verify_csrf)])
 def review_create(
     request: Request,
-    app_id: int,
+    app_id: RecordId,
     rating: str = Form(""),
     body: str = Form(""),
     db: Session = Depends(get_db),

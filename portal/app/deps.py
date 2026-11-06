@@ -1,8 +1,14 @@
-from fastapi import Depends, Request
+from typing import Annotated
+
+from fastapi import Depends, Path, Request
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, get_db
 from app.models import User
+
+
+# номер записи в адресе: целое от 1 до 2147483647, иначе сразу страница «не найдено»
+RecordId = Annotated[int, Path(ge=1, le=2**31 - 1)]
 
 
 class NeedLogin(Exception):

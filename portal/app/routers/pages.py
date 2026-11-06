@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import current_user
+from app.deps import RecordId, current_user
 from app.services import EventService, ReviewService
 from app.templating import render
 
@@ -16,7 +16,7 @@ def index(request: Request, q: str = "", db: Session = Depends(get_db), user=Dep
 
 
 @router.get("/events/{event_id}")
-def event_page(request: Request, event_id: int, db: Session = Depends(get_db), user=Depends(current_user)):
+def event_page(request: Request, event_id: RecordId, db: Session = Depends(get_db), user=Depends(current_user)):
     event = EventService(db).get(event_id)
     if event is None:
         raise HTTPException(404)

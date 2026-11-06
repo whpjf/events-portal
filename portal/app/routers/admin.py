@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.choices import ACTION_LABELS, IMAGES
 from app.database import get_db
-from app.deps import admin_required
+from app.deps import RecordId, admin_required
 from app.models import Event
 from app.schemas import EventForm, parse
 from app.security import verify_csrf
@@ -32,13 +32,15 @@ def admin_page(
 
 
 @router.post("/applications/{app_id}/advance", dependencies=[Depends(verify_csrf)])
-def advance_status(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
+def advance_status(request: Request, app_id: RecordId, db: Session = Depends(get_db), user=Depends(admin_required)):
     service = ApplicationService(db)
     app = service.get(app_id)
     if app is None:
         raise HTTPException(404)
     if service.advance(app):
         request.session["flash"] = "Статус заявки № %d изменён" % app.id
+    elif app.status == "assigned":
+        request.session["flash"] = "Заявку № %d нельзя завершить до даты мероприятия" % app.id
     else:
         request.session["flash"] = "Заявка № %d уже завершена, статус не меняется" % app.id
     return RedirectResponse("/admin", status_code=303)
@@ -77,7 +79,7 @@ def event_create(
 
 
 @router.get("/events/{event_id}/edit")
-def event_edit(request: Request, event_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
+def event_edit(request: Request, event_id: RecordId, db: Session = Depends(get_db), user=Depends(admin_required)):
     event = EventService(db).get(event_id)
     if event is None:
         raise HTTPException(404)
@@ -89,7 +91,7 @@ def event_edit(request: Request, event_id: int, db: Session = Depends(get_db), u
 @router.post("/events/{event_id}/edit", dependencies=[Depends(verify_csrf)])
 def event_update(
     request: Request,
-    event_id: int,
+    event_id: RecordId,
     title: str = Form(""),
     event_date: str = Form(""),
     place: str = Form(""),
@@ -112,7 +114,7 @@ def event_update(
 
 
 @router.post("/events/{event_id}/delete", dependencies=[Depends(verify_csrf)])
-def event_delete(request: Request, event_id: int, db: Session = Depends(get_db), user=Depends(admin_required)):
+def event_delete(request: Request, event_id: RecordId, db: Session = Depends(get_db), user=Depends(admin_required)):
     service = EventService(db)
     event = service.get(event_id)
     if event is None:

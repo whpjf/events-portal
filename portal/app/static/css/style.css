@@ -54,6 +54,8 @@ h2 { font-size: 1.1rem; margin: 0 0 0.4em; }
 a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
 a:hover { color: var(--accent); }
 img { max-width: 100%; height: auto; display: block; }
+h1, h2, h3, p, td, dd, .place { overflow-wrap: anywhere; }
+.cards > *, .app-cards > * { min-width: 0; }
 
 /* шапка */
 .top { background: var(--white); border-bottom: 3px solid var(--ink); position: relative; }
