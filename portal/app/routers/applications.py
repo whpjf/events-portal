@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import login_required
 from app.schemas import ApplicationForm, parse
+from app.security import verify_csrf
 from app.services import ApplicationService, EventService
 from app.templating import render
 
@@ -19,7 +20,7 @@ def apply_page(request: Request, event_id: int, db: Session = Depends(get_db), u
     return render(request, "apply.html", user, event=event, errors={}, values={})
 
 
-@router.post("/events/{event_id}/apply")
+@router.post("/events/{event_id}/apply", dependencies=[Depends(verify_csrf)])
 def apply(
     request: Request,
     event_id: int,

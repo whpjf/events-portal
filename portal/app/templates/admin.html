@@ -14,6 +14,7 @@
     <td>{{ a.payment }}</td>
     <td>
       <form method="post" action="/admin/applications/{{ a.id }}/status" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
         <select name="status">
           {% for code, label in [('new','Новая'),('assigned','Назначено'),('done','Завершено')] %}
           <option value="{{ code }}" {% if a.status == code %}selected{% endif %}>{{ label }}</option>

@@ -14,7 +14,7 @@
     {% if user %}
       <a href="/my">Мои заявки</a>
       {% if user.role == 'admin' %}<a href="/admin">Панель администратора</a>{% endif %}
-      <form method="post" action="/logout" class="inline"><span class="who">{{ user.login }}</span> <button type="submit">Выйти</button></form>
+      <form method="post" action="/logout" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf }}"><span class="who">{{ user.login }}</span> <button type="submit">Выйти</button></form>
     {% else %}
       <a href="/login">Вход</a>
       <a href="/register">Регистрация</a>
