@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, text, DateTime, ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -17,6 +17,8 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(20), default="participant")
 
     applications: Mapped[list["Application"]] = relationship(back_populates="user")
+
+    __table_args__ = (Index("uq_users_login_lower", text("lower(login)"), unique=True),)
 
 
 class Event(Base):

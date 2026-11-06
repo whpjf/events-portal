@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.choices import NEXT_STATUS
@@ -15,7 +15,8 @@ class UserService:
         self.db = db
 
     def by_login(self, login):
-        return self.db.scalar(select(User).where(User.login == login))
+        # логины считаются одинаковыми без учёта регистра: Anna и anna это один человек
+        return self.db.scalar(select(User).where(func.lower(User.login) == login.lower()))
 
     def register(self, form, role="participant"):
         user = User(login=form.login, password_hash=hash_password(form.password), email=form.email, phone=form.phone, role=role)
@@ -35,11 +36,12 @@ class EventService:
         self.db = db
 
     def search(self, q=""):
-        query = select(Event).order_by(Event.event_date)
+        events = list(self.db.scalars(select(Event).order_by(Event.event_date)))
         if q:
-            # поиск по названию, значение q подставляется параметром, а не строкой
-            query = query.where(Event.title.like(f"%{q}%"))
-        return self.upcoming_first(list(self.db.scalars(query)))
+            # SQLite сравнивает без учёта регистра только латиницу, поэтому ищем в Python
+            needle = q.strip().casefold()
+            events = [e for e in events if needle in e.title.casefold()]
+        return self.upcoming_first(events)
 
     @staticmethod
     def upcoming_first(events):
@@ -114,6 +116,8 @@ class ApplicationService:
         """Статус меняется только вперёд: новая, назначено, завершено."""
         nxt = NEXT_STATUS.get(app.status)
         if nxt is None:
+            return False
+        if nxt == "done" and app.event.event_date > datetime.now():
             return False
         app.status_id = self.db.scalar(select(Status.id).where(Status.code == nxt))
         self.db.commit()

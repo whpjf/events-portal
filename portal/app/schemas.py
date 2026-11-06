@@ -6,9 +6,11 @@ from datetime import datetime
 
 from app.choices import IMAGES, PAYMENTS, ROOMS
 
-LOGIN_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
-EMAIL_RE = re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
-PHONE_RE = re.compile(r"^(\+7|8)[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$")
+# fullmatch вместо match с $: «$» пропускает перевод строки в конце значения
+LOGIN_RE = re.compile(r"[A-Za-z0-9_]{3,30}")
+EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(\.[\w-]+)*\.[^\W\d_]{2,}")
+# в телефоне только цифры 0-9, \d пропускает и арабские
+PHONE_RE = re.compile(r"(\+7|8)[\s(-]*[0-9]{3}[\s)-]*[0-9]{3}[\s-]*[0-9]{2}[\s-]*[0-9]{2}")
 
 
 def parse(model, data):
@@ -34,21 +36,21 @@ class RegisterForm(BaseModel):
     @field_validator("login")
     @classmethod
     def check_login(cls, v):
-        if not LOGIN_RE.match(v):
+        if not LOGIN_RE.fullmatch(v):
             raise ValueError("Логин: от 3 до 30 символов, латинские буквы, цифры и знак _")
         return v
 
     @field_validator("email")
     @classmethod
     def check_email(cls, v):
-        if not EMAIL_RE.match(v):
+        if not EMAIL_RE.fullmatch(v):
             raise ValueError("Почта указана неверно, пример: anna@mail.ru")
         return v
 
     @field_validator("phone")
     @classmethod
     def check_phone(cls, v):
-        if not PHONE_RE.match(v):
+        if not PHONE_RE.fullmatch(v):
             raise ValueError("Телефон в формате +7 916 123-45-67 или 8 916 123-45-67")
         digits = re.sub(r"\D", "", v)
         return "+7" + digits[-10:]
@@ -58,6 +60,8 @@ class RegisterForm(BaseModel):
     def check_password(cls, v):
         if len(v) < 8:
             raise ValueError("Пароль: не короче 8 символов")
+        if not v.strip():
+            raise ValueError("Пароль не может состоять из одних пробелов")
         return v
 
     @field_validator("password2")
