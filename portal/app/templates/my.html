@@ -3,21 +3,21 @@
 {% block content %}
 <h1>Мои заявки</h1>
 {% if not applications %}<p>Заявок пока нет. Выберите мероприятие на <a href="/">главной</a>.</p>{% else %}
-<table>
+<table class="table-cards">
   <tr><th>Мероприятие</th><th>Дата</th><th>Помещение</th><th>Оплата</th><th>Статус</th><th>Отзыв</th><th></th></tr>
   {% for a in applications %}
   <tr>
-    <td><a href="/events/{{ a.event.id }}">{{ a.event.title }}</a></td>
-    <td>{{ a.event.event_date|date_ru }}</td>
-    <td>{{ a.room }}</td>
-    <td>{{ a.payment }}</td>
-    <td><span class="badge badge-{{ a.status }}">{{ a.status|status_label }}</span></td>
-    <td>
+    <td data-label="Мероприятие"None><a href="/events/{{ a.event.id }}">{{ a.event.title }}</a></td>
+    <td data-label="Дата"None>{{ a.event.event_date|date_ru }}</td>
+    <td data-label="Помещение"None>{{ a.room }}</td>
+    <td data-label="Оплата"None>{{ a.payment }}</td>
+    <td data-label="Статус"None><span class="badge badge-{{ a.status }}">{{ a.status|status_label }}</span></td>
+    <td data-label="Отзыв"None>
       {% if a.review %}<span class="muted">Оценка {{ a.review.rating }}</span>
       {% elif a.status == 'done' %}<a href="/my/{{ a.id }}/review">Оставить отзыв</a>
       {% else %}<span class="muted">после завершения</span>{% endif %}
     </td>
-    <td class="actions">
+    <td data-label="Действия" class="actions">
       {% if a.status == 'new' %}
       <a href="/my/{{ a.id }}/edit">Изменить</a>
       <form method="post" action="/my/{{ a.id }}/cancel" class="inline" onsubmit="return confirm('Отменить заявку?')">

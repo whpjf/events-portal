@@ -3,14 +3,14 @@
 {% block content %}
 <h1>Мероприятия</h1>
 <p><a class="btn" href="/admin/events/new">Добавить мероприятие</a> <a class="btn btn-ghost" href="/admin">К заявкам</a></p>
-<table>
+<table class="table-cards">
   <tr><th>Название</th><th>Дата</th><th>Заявок</th><th>Действия</th></tr>
   {% for e in events %}
   <tr>
-    <td><a href="/events/{{ e.id }}">{{ e.title }}</a></td>
-    <td>{{ e.event_date|date_ru }}</td>
-    <td>{{ e.applications|length }}</td>
-    <td class="actions">
+    <td data-label="Название"><a href="/events/{{ e.id }}">{{ e.title }}</a></td>
+    <td data-label="Дата">{{ e.event_date|date_ru }}</td>
+    <td data-label="Заявок">{{ e.applications|length }}</td>
+    <td data-label="Действия" class="actions">
       <a href="/admin/events/{{ e.id }}/edit">Изменить</a>
       <form method="post" action="/admin/events/{{ e.id }}/delete" class="inline" onsubmit="return confirm('Удалить мероприятие?')">
         <input type="hidden" name="csrf_token" value="{{ csrf }}">
