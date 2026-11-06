@@ -2,7 +2,9 @@ import re
 
 from pydantic import BaseModel, ValidationError, field_validator
 
-from app.choices import PAYMENTS, ROOMS
+from datetime import datetime
+
+from app.choices import IMAGES, PAYMENTS, ROOMS
 
 LOGIN_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 EMAIL_RE = re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
@@ -116,4 +118,51 @@ class ReviewForm(BaseModel):
             raise ValueError("Отзыв: не короче 5 символов")
         if len(v) > 500:
             raise ValueError("Отзыв: не длиннее 500 символов")
+        return v
+
+
+class EventForm(BaseModel):
+    title: str
+    event_date: datetime
+    place: str
+    description: str
+    image: str
+
+    @field_validator("title")
+    @classmethod
+    def check_title(cls, v):
+        v = v.strip()
+        if not 3 <= len(v) <= 120:
+            raise ValueError("Название: от 3 до 120 символов")
+        return v
+
+    @field_validator("event_date", mode="before")
+    @classmethod
+    def check_date(cls, v):
+        try:
+            return datetime.fromisoformat(v)
+        except (TypeError, ValueError):
+            raise ValueError("Укажите дату и время мероприятия")
+
+    @field_validator("place")
+    @classmethod
+    def check_place(cls, v):
+        v = v.strip()
+        if not 3 <= len(v) <= 120:
+            raise ValueError("Место: от 3 до 120 символов")
+        return v
+
+    @field_validator("description")
+    @classmethod
+    def check_description(cls, v):
+        v = v.strip()
+        if not 10 <= len(v) <= 2000:
+            raise ValueError("Описание: от 10 до 2000 символов")
+        return v
+
+    @field_validator("image")
+    @classmethod
+    def check_image(cls, v):
+        if v not in IMAGES:
+            raise ValueError("Выберите фото из списка")
         return v

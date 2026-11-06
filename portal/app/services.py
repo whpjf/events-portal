@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.choices import NEXT_STATUS
 from app.models import Application, Event, Review, User
 from app.security import hash_password, verify_password
 
@@ -51,6 +52,28 @@ class EventService:
     def get(self, event_id):
         return self.db.get(Event, event_id)
 
+    def all(self):
+        return list(self.db.scalars(select(Event).order_by(Event.event_date.desc())))
+
+    def create(self, form):
+        event = Event(title=form.title, event_date=form.event_date, place=form.place, description=form.description, image=form.image)
+        self.db.add(event)
+        self.db.commit()
+        return event
+
+    def update(self, event, form):
+        event.title, event.event_date, event.place = form.title, form.event_date, form.place
+        event.description, event.image = form.description, form.image
+        self.db.commit()
+
+    def delete(self, event):
+        """Мероприятие с заявками удалять нельзя, иначе заявки останутся без мероприятия."""
+        if event.applications:
+            return False
+        self.db.delete(event)
+        self.db.commit()
+        return True
+
 
 class ApplicationService:
     def __init__(self, db: Session):
@@ -85,12 +108,22 @@ class ApplicationService:
             query = query.where(User.login.like(f"%{q}%"))
         return list(self.db.scalars(query))
 
-    def set_status(self, app_id, status):
-        app = self.db.get(Application, app_id)
-        if app and status in STATUS_LABELS:
-            app.status = status
-            self.db.commit()
-        return app
+    def advance(self, app):
+        """Статус меняется только вперёд: новая, назначено, завершено."""
+        nxt = NEXT_STATUS.get(app.status)
+        if nxt is None:
+            return False
+        app.status = nxt
+        self.db.commit()
+        return True
+
+    def update(self, app, form):
+        app.room, app.payment, app.comment = form.room, form.payment, form.comment
+        self.db.commit()
+
+    def cancel(self, app):
+        self.db.delete(app)
+        self.db.commit()
 
 
 class ReviewService:
