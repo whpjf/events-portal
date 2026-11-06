@@ -25,10 +25,20 @@ python -m venv .venv
 | Участник | anna_k | Parol2026Anna |
 | Участник | oleg_s | Parol2026Oleg |
 
+## Тесты
+
+```
+cd portal
+.venv\Scripts\python -m pytest
+```
+63 теста: безопасность, формы, статусы и отзывы, база, исправленные ошибки. Тесты сами создают базу во временной папке. Тесты с браузером (Selenium) и тестовая документация лежат в отдельном репозитории [events-portal-tests](https://github.com/whpjf/events-portal-tests).
+
 ## Папки
 
-- `portal/` код портала (`app/` приложение, `migrations/` миграции Alembic, `seed.py` учебные данные)
+- `portal/` код портала (`app/` приложение, `migrations/` миграции Alembic, `tests/` тесты, `seed.py` учебные данные)
 - `Практика NN. Название/` по папке на каждую практику: README и скриншоты
+- `docs/photo_sources.md` источники фотографий (Wikimedia Commons)
+- `Отчет МДК.09.01.docx` отчёт по практикам
 
 ## Практики
 
