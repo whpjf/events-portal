@@ -6,7 +6,7 @@ from tests.conftest import login, token
 
 def status_of(app_id):
     con = sqlite3.connect(os.environ["PORTAL_DB"])
-    row = con.execute("SELECT status FROM applications WHERE id = ?", (app_id,)).fetchone()
+    row = con.execute("SELECT s.code FROM applications a JOIN statuses s ON s.id = a.status_id WHERE a.id = ?", (app_id,)).fetchone()
     con.close()
     return row[0]
 
