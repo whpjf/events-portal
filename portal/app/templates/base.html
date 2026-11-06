@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Конференции.РФ{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">Конференции.РФ</a>
+  <nav>
+    <a href="/">Мероприятия</a>
+    {% if user %}
+      <a href="/my">Мои заявки</a>
+      {% if user.role == 'admin' %}<a href="/admin">Панель администратора</a>{% endif %}
+      <form method="post" action="/logout" class="inline"><span class="who">{{ user.login }}</span> <button type="submit">Выйти</button></form>
+    {% else %}
+      <a href="/login">Вход</a>
+      <a href="/register">Регистрация</a>
+    {% endif %}
+  </nav>
+</header>
+<main>
+  {% if flash %}<p class="flash">{{ flash }}</p>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer>Конференции.РФ, учебный проект. Данные учебные.</footer>
+</body>
+</html>

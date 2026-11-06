@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+<h1>Регистрация</h1>
+{% if errors %}<ul class="errors">{% for m in errors.values() %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+<form method="post" action="/register" class="form">
+  <label>Логин <input type="text" name="login" value="{{ values.login }}"></label>
+  <label>Почта <input type="text" name="email" value="{{ values.email }}"></label>
+  <label>Телефон <input type="text" name="phone" value="{{ values.phone }}"></label>
+  <label>Пароль <input type="password" name="password"></label>
+  <label>Повторите пароль <input type="password" name="password2"></label>
+  <button type="submit">Зарегистрироваться</button>
+</form>
+{% endblock %}

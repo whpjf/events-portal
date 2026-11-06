@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Заявка{% endblock %}
+{% block content %}
+<h1>Заявка на мероприятие</h1>
+<p>{{ event.title }}, {{ event.event_date|date_ru }}</p>
+{% if errors %}<ul class="errors">{% for m in errors.values() %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+<form method="post" action="/events/{{ event.id }}/apply" class="form">
+  <label>Помещение <input type="text" name="room" value="{{ values.room }}"></label>
+  <label>Способ оплаты <input type="text" name="payment" value="{{ values.payment }}"></label>
+  <label>Комментарий <textarea name="comment" rows="3">{{ values.comment }}</textarea></label>
+  <button type="submit">Отправить заявку</button>
+</form>
+{% endblock %}

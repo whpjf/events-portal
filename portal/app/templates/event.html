@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<h1>{{ event.title }}</h1>
+<img class="hero" src="/static/img/events/{{ event.image }}" alt="{{ event.title }}">
+<p><b>Когда:</b> {{ event.event_date|date_ru }}</p>
+<p><b>Где:</b> {{ event.place }}</p>
+<p>{{ event.description }}</p>
+{% if event.event_date < now %}
+  <p class="muted">Мероприятие прошло, заявки не принимаются.</p>
+{% elif user %}
+  <p><a class="btn" href="/events/{{ event.id }}/apply">Подать заявку</a></p>
+{% else %}
+  <p><a href="/login?next=/events/{{ event.id }}/apply">Войдите</a>, чтобы подать заявку.</p>
+{% endif %}
+{% endblock %}

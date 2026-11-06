@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Мои заявки{% endblock %}
+{% block content %}
+<h1>Мои заявки</h1>
+{% if not applications %}<p>Заявок пока нет. Выберите мероприятие на <a href="/">главной</a>.</p>{% else %}
+<table>
+  <tr><th>Мероприятие</th><th>Дата</th><th>Помещение</th><th>Оплата</th><th>Статус</th></tr>
+  {% for a in applications %}
+  <tr>
+    <td><a href="/events/{{ a.event.id }}">{{ a.event.title }}</a></td>
+    <td>{{ a.event.event_date|date_ru }}</td>
+    <td>{{ a.room }}</td>
+    <td>{{ a.payment }}</td>
+    <td>{{ a.status|status_label }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

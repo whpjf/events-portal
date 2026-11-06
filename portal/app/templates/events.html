@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Мероприятия</h1>
+<form method="get" action="/" class="search">
+  <input type="text" name="q" value="{{ q }}" placeholder="Поиск по названию">
+  <button type="submit">Найти</button>
+</form>
+{% if not events %}<p>Ничего не найдено.</p>{% endif %}
+<div class="cards">
+  {% for e in events %}
+  <article class="card">
+    <img src="/static/img/events/{{ e.image }}" alt="{{ e.title }}">
+    <h2><a href="/events/{{ e.id }}">{{ e.title }}</a></h2>
+    <p>{{ e.event_date|date_ru }}, {{ e.place }}</p>
+    {% if e.event_date < now %}<p class="muted">Мероприятие прошло</p>{% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

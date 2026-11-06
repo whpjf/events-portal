@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Панель администратора{% endblock %}
+{% block content %}
+<h1>Все заявки</h1>
+<table>
+  <tr><th>№</th><th>Участник</th><th>Мероприятие</th><th>Подана</th><th>Помещение</th><th>Оплата</th><th>Статус</th></tr>
+  {% for a in applications %}
+  <tr>
+    <td>{{ a.id }}</td>
+    <td>{{ a.user.login }}</td>
+    <td>{{ a.event.title }}</td>
+    <td>{{ a.created_at|date_ru }}</td>
+    <td>{{ a.room }}</td>
+    <td>{{ a.payment }}</td>
+    <td>
+      <form method="post" action="/admin/applications/{{ a.id }}/status" class="inline">
+        <select name="status">
+          {% for code, label in [('new','Новая'),('assigned','Назначено'),('done','Завершено')] %}
+          <option value="{{ code }}" {% if a.status == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit">Сохранить</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
