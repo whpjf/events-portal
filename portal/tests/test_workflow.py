@@ -11,6 +11,14 @@ def status_of(app_id):
     return row[0]
 
 
+def event_is_over(event_id):
+    """Переносит мероприятие на вчера: завершить заявку можно только после даты мероприятия."""
+    con = sqlite3.connect(os.environ["PORTAL_DB"])
+    con.execute("UPDATE events SET event_date = datetime('now', '-1 day') WHERE id = ?", (event_id,))
+    con.commit()
+    con.close()
+
+
 def advance(client, app_id):
     return client.post(f"/admin/applications/{app_id}/advance", data={"csrf_token": token(client, "/admin")})
 
@@ -20,6 +28,7 @@ def test_status_goes_new_assigned_done(client):
     assert status_of(5) == "new"
     assert advance(client, 5).status_code == 303
     assert status_of(5) == "assigned"
+    event_is_over(4)
     advance(client, 5)
     assert status_of(5) == "done"
 
@@ -37,6 +46,7 @@ def test_advance_unknown_application(client):
 
 def test_review_opens_after_admin_finishes_application(client):
     login(client, "admin_konf", "Admin2026Konf")
+    event_is_over(4)
     advance(client, 3)
     assert status_of(3) == "done"
     client.post("/logout", data={"csrf_token": token(client, "/admin")})
@@ -111,3 +121,10 @@ def test_cannot_cancel_application_after_assigned_or_of_other_user(client):
     client.post("/my/3/cancel", data={"csrf_token": t})
     assert status_of(3) == "assigned"
     assert client.post("/my/5/cancel", data={"csrf_token": t}).status_code == 404
+
+
+def test_application_is_not_finished_before_the_event(client):
+    login(client, "admin_konf", "Admin2026Konf")
+    # заявка 3: назначено, мероприятие ещё впереди
+    advance(client, 3)
+    assert status_of(3) == "assigned"
