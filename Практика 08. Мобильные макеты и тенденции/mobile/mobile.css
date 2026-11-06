@@ -1,0 +1,29 @@
+/* Макет для телефона 390x844. Цвета и шрифты те же, что в проекте */
+@font-face { font-family: "Golos Text"; src: url("../../portal/app/static/fonts/golos-cyrillic.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0400-045F, U+0490-0491, U+2116; }
+@font-face { font-family: "Golos Text"; src: url("../../portal/app/static/fonts/golos-latin.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: "Unbounded"; src: url("../../portal/app/static/fonts/unbounded-cyrillic.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0400-045F, U+0490-0491, U+2116; }
+@font-face { font-family: "Unbounded"; src: url("../../portal/app/static/fonts/unbounded-latin.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+2000-206F; }
+:root { --ink: #14161b; --paper: #f1f3f5; --accent: #c4202f; --muted: #5b616b; --line: #d5d9de; --soft: #fbe4e6; }
+* { box-sizing: border-box; }
+body { margin: 0; max-width: 390px; font: 16px/1.5 "Golos Text", sans-serif; color: var(--ink); background: var(--paper); }
+h1, h2, .brand { font-family: "Unbounded", sans-serif; font-weight: 600; line-height: 1.25; }
+h1 { font-size: 1.5rem; margin: 20px 0 12px; }
+h2 { font-size: 1.05rem; margin: 0 0 6px; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; min-height: 60px; background: #fff; border-bottom: 3px solid var(--ink); }
+.brand { text-decoration: none; color: var(--ink); }
+.brand span { color: var(--accent); }
+.menu { min-height: 44px; padding: 0 16px; font: inherit; font-weight: 600; background: #fff; border: 2px solid var(--ink); }
+main { padding: 0 16px 32px; }
+img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.card { background: #fff; border: 1px solid var(--line); margin-bottom: 16px; }
+.card div { padding: 14px 16px; }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.tag { display: inline-block; background: var(--ink); color: #fff; padding: 4px 10px; font-size: 0.8rem; margin-bottom: 8px; }
+.btn { color: #fff !important; display: flex; align-items: center; justify-content: center; min-height: 48px; background: var(--ink); color: #fff; font-weight: 600; text-decoration: none; border: 2px solid var(--ink); width: 100%; font-size: 1rem; }
+form { background: #fff; border: 1px solid var(--line); padding: 20px; }
+label { display: block; font-weight: 600; margin-bottom: 14px; }
+input, select { width: 100%; min-height: 48px; margin-top: 4px; padding: 8px 12px; font: inherit; font-weight: 400; border: 2px solid var(--ink); background: #fff; border-radius: 0; }
+.hint { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+.badge { display: inline-block; padding: 2px 10px; border: 1px solid currentColor; font-size: 0.85rem; font-weight: 600; }
+.assigned { color: #2b5fa8; } .done { color: #2f7d4f; } .new { color: var(--muted); }
+a { color: var(--ink); }
