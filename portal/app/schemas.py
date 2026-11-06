@@ -2,6 +2,8 @@ import re
 
 from pydantic import BaseModel, ValidationError, field_validator
 
+from app.choices import PAYMENTS, ROOMS
+
 LOGIN_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 EMAIL_RE = re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
 PHONE_RE = re.compile(r"^(\+7|8)[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$")
@@ -72,20 +74,16 @@ class ApplicationForm(BaseModel):
     @field_validator("room")
     @classmethod
     def check_room(cls, v):
-        if not v.strip():
-            raise ValueError("Укажите помещение")
-        if len(v) > 60:
-            raise ValueError("Помещение: не больше 60 символов")
-        return v.strip()
+        if v not in ROOMS:
+            raise ValueError("Выберите помещение из списка")
+        return v
 
     @field_validator("payment")
     @classmethod
     def check_payment(cls, v):
-        if not v.strip():
-            raise ValueError("Укажите способ оплаты")
-        if len(v) > 40:
-            raise ValueError("Способ оплаты: не больше 40 символов")
-        return v.strip()
+        if v not in PAYMENTS:
+            raise ValueError("Выберите способ оплаты из списка")
+        return v
 
     @field_validator("comment")
     @classmethod
@@ -93,3 +91,29 @@ class ApplicationForm(BaseModel):
         if len(v) > 300:
             raise ValueError("Комментарий: не больше 300 символов")
         return v.strip()
+
+
+class ReviewForm(BaseModel):
+    rating: int
+    body: str
+
+    @field_validator("rating", mode="before")
+    @classmethod
+    def check_rating(cls, v):
+        try:
+            v = int(v)
+        except (TypeError, ValueError):
+            raise ValueError("Поставьте оценку от 1 до 5")
+        if not 1 <= v <= 5:
+            raise ValueError("Оценка от 1 до 5")
+        return v
+
+    @field_validator("body")
+    @classmethod
+    def check_body(cls, v):
+        v = v.strip()
+        if len(v) < 5:
+            raise ValueError("Отзыв: не короче 5 символов")
+        if len(v) > 500:
+            raise ValueError("Отзыв: не длиннее 500 символов")
+        return v

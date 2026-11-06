@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<h1>Личный кабинет</h1>
+<dl class="event-meta">
+  <dt>Логин</dt><dd>{{ user.login }}</dd>
+  <dt>Почта</dt><dd>{{ user.email }}</dd>
+  <dt>Телефон</dt><dd>{{ user.phone }}</dd>
+</dl>
+<div class="stats">
+  <div><b>{{ stats.total }}</b><span>заявок всего</span></div>
+  <div><b>{{ stats.done }}</b><span>завершено</span></div>
+  <div><b>{{ stats.reviews }}</b><span>отзывов</span></div>
+</div>
+<p><a class="btn" href="/my">Мои заявки</a></p>
+{% endblock %}

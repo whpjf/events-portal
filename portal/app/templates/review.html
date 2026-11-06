@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Отзыв{% endblock %}
+{% block content %}
+<h1>Отзыв о мероприятии</h1>
+<p>{{ app.event.title }}, {{ app.event.event_date|date_ru }}</p>
+<form method="post" action="/my/{{ app.id }}/review" class="form" data-validate>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Оценка
+    <select name="rating" required{% if errors.get('rating') %} aria-invalid="true"{% endif %}>
+      <option value="">Выберите оценку</option>
+      {% for n in [5, 4, 3, 2, 1] %}<option value="{{ n }}" {% if values.get('rating') == n|string %}selected{% endif %}>{{ n }}</option>{% endfor %}
+    </select>
+    <span class="field-error" data-for="rating">{{ errors.get('rating', '') }}</span>
+  </label>
+  <label>Отзыв <span class="hint">от 5 до 500 символов</span>
+    <textarea name="body" rows="5" required minlength="5" maxlength="500">{{ values.get('body', '') }}</textarea>
+    <span class="field-error" data-for="body">{{ errors.get('body', '') }}</span>
+  </label>
+  <button type="submit">Сохранить отзыв</button>
+</form>
+{% endblock %}

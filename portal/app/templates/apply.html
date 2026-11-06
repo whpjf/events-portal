@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+{% from "_macros.html" import choice %}
 {% block title %}Заявка{% endblock %}
 {% block content %}
 <h1>Заявка на мероприятие</h1>
 <p>{{ event.title }}, {{ event.event_date|date_ru }}</p>
-{% if errors %}<ul class="errors">{% for m in errors.values() %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
-<form method="post" action="/events/{{ event.id }}/apply" class="form">
+{% if errors.form %}<p class="errors">{{ errors.form }}</p>{% endif %}
+<form method="post" action="/events/{{ event.id }}/apply" class="form" data-validate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Помещение <input type="text" name="room" value="{{ values.room }}" required maxlength="60"></label>
-  <label>Способ оплаты <input type="text" name="payment" value="{{ values.payment }}" required maxlength="40"></label>
-  <label>Комментарий <textarea name="comment" rows="3" maxlength="300">{{ values.comment }}</textarea></label>
+  {{ choice("Помещение", "room", rooms, values, errors) }}
+  {{ choice("Способ оплаты", "payment", payments, values, errors) }}
+  <label>Комментарий <span class="hint">необязательно</span>
+    <textarea name="comment" rows="3" maxlength="300">{{ values.get('comment', '') }}</textarea>
+    <span class="field-error" data-for="comment">{{ errors.get('comment', '') }}</span>
+  </label>
   <button type="submit">Отправить заявку</button>
 </form>
 {% endblock %}

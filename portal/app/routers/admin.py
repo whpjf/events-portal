@@ -5,15 +5,27 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import admin_required
 from app.security import verify_csrf
-from app.services import ApplicationService
+from app.models import Event
+from app.services import STATUS_LABELS, ApplicationService
 from app.templating import render
 
 router = APIRouter(prefix="/admin")
 
 
 @router.get("")
-def admin_page(request: Request, db: Session = Depends(get_db), user=Depends(admin_required)):
-    return render(request, "admin.html", user, applications=ApplicationService(db).all())
+def admin_page(
+    request: Request,
+    status: str = "",
+    event: str = "",
+    q: str = "",
+    db: Session = Depends(get_db),
+    user=Depends(admin_required),
+):
+    event_id = int(event) if event.isdigit() else None
+    apps = ApplicationService(db).filtered(status, event_id, q)
+    events = db.query(Event).order_by(Event.title).all()
+    filters = dict(status=status, event=event, q=q)
+    return render(request, "admin.html", user, applications=apps, events=events, filters=filters, statuses=STATUS_LABELS)
 
 
 @router.post("/applications/{app_id}/status", dependencies=[Depends(verify_csrf)])

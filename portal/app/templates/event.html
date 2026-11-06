@@ -16,4 +16,14 @@
 {% else %}
   <p><a href="/login?next=/events/{{ event.id }}/apply">Войдите</a>, чтобы подать заявку.</p>
 {% endif %}
+<section class="reviews">
+  <h2>Отзывы участников</h2>
+  {% if not reviews %}<p class="muted">Отзывов пока нет.</p>{% endif %}
+  {% for r in reviews %}
+  <article class="review">
+    <p class="muted">Оценка {{ r.rating }} из 5, {{ r.created_at.strftime('%d.%m.%Y') }}</p>
+    <p>{{ r.body }}</p>
+  </article>
+  {% endfor %}
+</section>
 {% endblock %}

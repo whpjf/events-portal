@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Application, Event, User
+from app.models import Application, Event, Review, User
 from app.security import hash_password, verify_password
 
 STATUS_LABELS = {"new": "Новая", "assigned": "Назначено", "done": "Завершено"}
@@ -71,8 +71,19 @@ class ApplicationService:
         q = select(Application).where(Application.user_id == user_id).order_by(Application.created_at.desc())
         return list(self.db.scalars(q))
 
-    def all(self):
-        return list(self.db.scalars(select(Application).order_by(Application.created_at.desc())))
+    def get(self, app_id):
+        return self.db.get(Application, app_id)
+
+    def filtered(self, status="", event_id=None, q=""):
+        """Заявки для панели администратора с фильтрами по статусу, мероприятию и логину."""
+        query = select(Application).join(User).order_by(Application.created_at.desc())
+        if status in STATUS_LABELS:
+            query = query.where(Application.status == status)
+        if event_id:
+            query = query.where(Application.event_id == event_id)
+        if q:
+            query = query.where(User.login.like(f"%{q}%"))
+        return list(self.db.scalars(query))
 
     def set_status(self, app_id, status):
         app = self.db.get(Application, app_id)
@@ -80,3 +91,21 @@ class ApplicationService:
             app.status = status
             self.db.commit()
         return app
+
+
+class ReviewService:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def exists(self, app_id):
+        return self.db.scalar(select(Review).where(Review.application_id == app_id)) is not None
+
+    def create(self, application, form):
+        review = Review(application_id=application.id, rating=form.rating, body=form.body)
+        self.db.add(review)
+        self.db.commit()
+        return review
+
+    def for_event(self, event_id):
+        query = select(Review).join(Application).where(Application.event_id == event_id).order_by(Review.created_at.desc())
+        return list(self.db.scalars(query))

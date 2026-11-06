@@ -1,0 +1,16 @@
+{% macro field(label, name, values, errors, type="text", attrs="", hint="") %}
+<label>{{ label }}{% if hint %} <span class="hint">{{ hint }}</span>{% endif %}
+  <input type="{{ type }}" name="{{ name }}" {% if type != "password" %}value="{{ values.get(name, '') }}"{% endif %} {{ attrs|safe }}{% if errors.get(name) %} aria-invalid="true"{% endif %}>
+  <span class="field-error" data-for="{{ name }}">{{ errors.get(name, "") }}</span>
+</label>
+{% endmacro %}
+
+{% macro choice(label, name, options, values, errors) %}
+<label>{{ label }}
+  <select name="{{ name }}" required{% if errors.get(name) %} aria-invalid="true"{% endif %}>
+    <option value="">Выберите из списка</option>
+    {% for o in options %}<option value="{{ o }}" {% if values.get(name) == o %}selected{% endif %}>{{ o }}</option>{% endfor %}
+  </select>
+  <span class="field-error" data-for="{{ name }}">{{ errors.get(name, "") }}</span>
+</label>
+{% endmacro %}

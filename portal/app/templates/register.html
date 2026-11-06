@@ -1,15 +1,15 @@
 {% extends "base.html" %}
+{% from "_macros.html" import field %}
 {% block title %}Регистрация{% endblock %}
 {% block content %}
 <h1>Регистрация</h1>
-{% if errors %}<ul class="errors">{% for m in errors.values() %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
-<form method="post" action="/register" class="form">
+<form method="post" action="/register" class="form" data-validate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Логин <input type="text" name="login" value="{{ values.login }}" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" title="Латинские буквы, цифры и знак _"></label>
-  <label>Почта <input type="email" name="email" value="{{ values.email }}" required maxlength="120"></label>
-  <label>Телефон <input type="tel" name="phone" value="{{ values.phone }}" required placeholder="+7 916 123-45-67"></label>
-  <label>Пароль <input type="password" name="password" required minlength="8"></label>
-  <label>Повторите пароль <input type="password" name="password2" required minlength="8"></label>
+  {{ field("Логин", "login", values, errors, attrs='required minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" autocomplete="username"', hint="латиница, цифры и _") }}
+  {{ field("Почта", "email", values, errors, type="email", attrs='required maxlength="120" autocomplete="email"') }}
+  {{ field("Телефон", "phone", values, errors, type="tel", attrs='required placeholder="+7 916 123-45-67" pattern="(\+7|8)[\s(\-]*\d{3}[\s)\-]*\d{3}[\s\-]*\d{2}[\s\-]*\d{2}" title="Телефон в формате +7 916 123-45-67 или 8 916 123-45-67" autocomplete="tel"') }}
+  {{ field("Пароль", "password", values, errors, type="password", attrs='required minlength="8" autocomplete="new-password"', hint="от 8 символов") }}
+  {{ field("Повторите пароль", "password2", values, errors, type="password", attrs='required minlength="8" autocomplete="new-password"') }}
   <button type="submit">Зарегистрироваться</button>
 </form>
 {% endblock %}

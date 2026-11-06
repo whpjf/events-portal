@@ -4,7 +4,7 @@
 <h1>Мои заявки</h1>
 {% if not applications %}<p>Заявок пока нет. Выберите мероприятие на <a href="/">главной</a>.</p>{% else %}
 <table>
-  <tr><th>Мероприятие</th><th>Дата</th><th>Помещение</th><th>Оплата</th><th>Статус</th></tr>
+  <tr><th>Мероприятие</th><th>Дата</th><th>Помещение</th><th>Оплата</th><th>Статус</th><th>Отзыв</th></tr>
   {% for a in applications %}
   <tr>
     <td><a href="/events/{{ a.event.id }}">{{ a.event.title }}</a></td>
@@ -12,6 +12,11 @@
     <td>{{ a.room }}</td>
     <td>{{ a.payment }}</td>
     <td><span class="badge badge-{{ a.status }}">{{ a.status|status_label }}</span></td>
+    <td>
+      {% if a.review %}<span class="muted">Оценка {{ a.review.rating }}</span>
+      {% elif a.status == 'done' %}<a href="/my/{{ a.id }}/review">Оставить отзыв</a>
+      {% else %}<span class="muted">после завершения</span>{% endif %}
+    </td>
   </tr>
   {% endfor %}
 </table>

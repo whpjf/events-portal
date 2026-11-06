@@ -16,6 +16,7 @@
       <a href="/">Мероприятия</a>
       {% if user %}
         <a href="/my">Мои заявки</a>
+        <a href="/cabinet">Кабинет</a>
         {% if user.role == 'admin' %}<a href="/admin">Панель администратора</a>{% endif %}
         <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf }}"><span class="who">{{ user.login }}</span> <button type="submit">Выйти</button></form>
       {% else %}
@@ -31,5 +32,6 @@
 </main>
 <footer>Конференции.РФ, учебный проект. Данные учебные. Фото: Wikimedia Commons.</footer>
 <script src="/static/js/site.js"></script>
+<script src="/static/js/forms.js"></script>
 </body>
 </html>
