@@ -32,6 +32,18 @@ class Event(Base):
     applications: Mapped[list["Application"]] = relationship(back_populates="event")
 
 
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"))
+    rating: Mapped[int] = mapped_column()
+    body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    application: Mapped["Application"] = relationship(back_populates="review")
+
+
 class Application(Base):
     __tablename__ = "applications"
 
@@ -46,3 +58,4 @@ class Application(Base):
 
     user: Mapped["User"] = relationship(back_populates="applications")
     event: Mapped["Event"] = relationship(back_populates="applications")
+    review: Mapped["Review | None"] = relationship(back_populates="application", uselist=False)
