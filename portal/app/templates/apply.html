@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "_macros.html" import choice %}
-{% block title %}Заявка{% endblock %}
+{% block title %}{{ title or 'Заявка' }}{% endblock %}
 {% block content %}
-<h1>Заявка на мероприятие</h1>
+<h1>{{ title or 'Заявка на мероприятие' }}</h1>
 <p>{{ event.title }}, {{ event.event_date|date_ru }}</p>
 {% if errors.form %}<p class="errors">{{ errors.form }}</p>{% endif %}
-<form method="post" action="/events/{{ event.id }}/apply" class="form" data-validate>
+<form method="post" action="{{ action or '/events/' ~ event.id ~ '/apply' }}" class="form" data-validate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
   {{ choice("Помещение", "room", rooms, values, errors) }}
   {{ choice("Способ оплаты", "payment", payments, values, errors) }}
@@ -13,6 +13,6 @@
     <textarea name="comment" rows="3" maxlength="300">{{ values.get('comment', '') }}</textarea>
     <span class="field-error" data-for="comment">{{ errors.get('comment', '') }}</span>
   </label>
-  <button type="submit">Отправить заявку</button>
+  <button type="submit">{{ button or 'Отправить заявку' }}</button>
 </form>
 {% endblock %}

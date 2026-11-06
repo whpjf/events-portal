@@ -51,6 +51,60 @@ def my_applications(request: Request, db: Session = Depends(get_db), user=Depend
     return render(request, "my.html", user, applications=ApplicationService(db).of_user(user.id))
 
 
+def own_new_application(db, app_id, user):
+    """Менять и отменять можно только свою заявку и пока она новая."""
+    app = ApplicationService(db).get(app_id)
+    if app is None or app.user_id != user.id:
+        raise HTTPException(404)
+    return app
+
+
+@router.get("/my/{app_id}/edit")
+def application_edit(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+    app = own_new_application(db, app_id, user)
+    if app.status != "new":
+        request.session["flash"] = "Заявку можно менять, пока она новая"
+        return RedirectResponse("/my", status_code=303)
+    values = dict(room=app.room, payment=app.payment, comment=app.comment)
+    return render(request, "apply.html", user, event=app.event, errors={}, values=values, rooms=ROOMS, payments=PAYMENTS,
+                  action=f"/my/{app.id}/edit", title="Изменение заявки", button="Сохранить")
+
+
+@router.post("/my/{app_id}/edit", dependencies=[Depends(verify_csrf)])
+def application_update(
+    request: Request,
+    app_id: int,
+    room: str = Form(""),
+    payment: str = Form(""),
+    comment: str = Form(""),
+    db: Session = Depends(get_db),
+    user=Depends(login_required),
+):
+    app = own_new_application(db, app_id, user)
+    if app.status != "new":
+        request.session["flash"] = "Заявку можно менять, пока она новая"
+        return RedirectResponse("/my", status_code=303)
+    data = dict(room=room, payment=payment, comment=comment)
+    form, errors = parse(ApplicationForm, data)
+    if errors:
+        return render(request, "apply.html", user, status_code=422, event=app.event, errors=errors, values=data, rooms=ROOMS,
+                      payments=PAYMENTS, action=f"/my/{app.id}/edit", title="Изменение заявки", button="Сохранить")
+    ApplicationService(db).update(app, form)
+    request.session["flash"] = "Заявка изменена"
+    return RedirectResponse("/my", status_code=303)
+
+
+@router.post("/my/{app_id}/cancel", dependencies=[Depends(verify_csrf)])
+def application_cancel(request: Request, app_id: int, db: Session = Depends(get_db), user=Depends(login_required)):
+    app = own_new_application(db, app_id, user)
+    if app.status != "new":
+        request.session["flash"] = "Отменить можно только новую заявку"
+        return RedirectResponse("/my", status_code=303)
+    ApplicationService(db).cancel(app)
+    request.session["flash"] = "Заявка отменена"
+    return RedirectResponse("/my", status_code=303)
+
+
 @router.get("/cabinet")
 def cabinet(request: Request, db: Session = Depends(get_db), user=Depends(login_required)):
     apps = ApplicationService(db).of_user(user.id)

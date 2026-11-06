@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Мероприятия{% endblock %}
+{% block content %}
+<h1>Мероприятия</h1>
+<p><a class="btn" href="/admin/events/new">Добавить мероприятие</a> <a class="btn btn-ghost" href="/admin">К заявкам</a></p>
+<table>
+  <tr><th>Название</th><th>Дата</th><th>Заявок</th><th>Действия</th></tr>
+  {% for e in events %}
+  <tr>
+    <td><a href="/events/{{ e.id }}">{{ e.title }}</a></td>
+    <td>{{ e.event_date|date_ru }}</td>
+    <td>{{ e.applications|length }}</td>
+    <td class="actions">
+      <a href="/admin/events/{{ e.id }}/edit">Изменить</a>
+      <form method="post" action="/admin/events/{{ e.id }}/delete" class="inline" onsubmit="return confirm('Удалить мероприятие?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <button type="submit" class="btn-link">Удалить</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

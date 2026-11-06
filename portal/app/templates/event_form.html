@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{% if event %}Изменение мероприятия{% else %}Новое мероприятие{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if event %}Изменение мероприятия{% else %}Новое мероприятие{% endif %}</h1>
+<form method="post" action="{% if event %}/admin/events/{{ event.id }}/edit{% else %}/admin/events/new{% endif %}" class="form" data-validate>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ field("Название", "title", values, errors, attrs='required minlength="3" maxlength="120"') }}
+  {{ field("Дата и время", "event_date", values, errors, type="datetime-local", attrs='required') }}
+  {{ field("Место", "place", values, errors, attrs='required minlength="3" maxlength="120"') }}
+  <label>Описание
+    <textarea name="description" rows="5" required minlength="10" maxlength="2000">{{ values.get('description', '') }}</textarea>
+    <span class="field-error" data-for="description">{{ errors.get('description', '') }}</span>
+  </label>
+  <label>Фото
+    <select name="image" required>
+      <option value="">Выберите из списка</option>
+      {% for file, label in images.items() %}<option value="{{ file }}" {% if values.get('image') == file %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <span class="field-error" data-for="image">{{ errors.get('image', '') }}</span>
+  </label>
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

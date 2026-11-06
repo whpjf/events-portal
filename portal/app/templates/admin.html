@@ -2,6 +2,7 @@
 {% block title %}Панель администратора{% endblock %}
 {% block content %}
 <h1>Заявки</h1>
+<p><a class="btn btn-ghost" href="/admin/events">Управление мероприятиями</a></p>
 <form method="get" action="/admin" class="filters">
   <label>Статус
     <select name="status">
@@ -33,13 +34,12 @@
     <p class="place">{{ a.user.login }}, подана {{ a.created_at|date_ru }}</p>
     <p class="place">{{ a.room }}, {{ a.payment }}</p>
     {% if a.comment %}<p class="comment">{{ a.comment }}</p>{% endif %}
-    <form method="post" action="/admin/applications/{{ a.id }}/status" class="status-form">
+    {% if a.status in actions %}
+    <form method="post" action="/admin/applications/{{ a.id }}/advance" class="status-form">
       <input type="hidden" name="csrf_token" value="{{ csrf }}">
-      <select name="status" aria-label="Статус заявки {{ a.id }}">
-        {% for code, label in statuses.items() %}<option value="{{ code }}" {% if a.status == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
-      </select>
-      <button type="submit">Сохранить</button>
+      <button type="submit">{{ actions[a.status] }}</button>
     </form>
+    {% else %}<p class="muted status-form">Заявка завершена</p>{% endif %}
   </article>
   {% endfor %}
 </div>

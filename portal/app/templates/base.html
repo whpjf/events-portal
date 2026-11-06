@@ -13,11 +13,11 @@
     <a class="brand" href="/">Конференции<span>.РФ</span></a>
     <button type="button" class="menu-btn" aria-expanded="false" aria-controls="nav">Меню</button>
     <nav id="nav">
-      <a href="/">Мероприятия</a>
+      <a href="/">Афиша</a>
       {% if user %}
         <a href="/my">Мои заявки</a>
         <a href="/cabinet">Кабинет</a>
-        {% if user.role == 'admin' %}<a href="/admin">Панель администратора</a>{% endif %}
+        {% if user.role == 'admin' %}<a href="/admin">Заявки</a><a href="/admin/events">Мероприятия</a>{% endif %}
         <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf }}"><span class="who">{{ user.login }}</span> <button type="submit">Выйти</button></form>
       {% else %}
         <a href="/login">Вход</a>

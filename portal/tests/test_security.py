@@ -31,7 +31,7 @@ def test_post_without_csrf_is_rejected(client):
 
 def test_status_change_without_csrf_is_rejected(client):
     login(client, "admin_konf", "Admin2026Konf")
-    r = client.post("/admin/applications/1/status", data={"status": "new"})
+    r = client.post("/admin/applications/1/advance", data={})
     assert r.status_code == 403
 
 
@@ -48,7 +48,7 @@ def test_participant_cannot_open_admin(client):
 
 def test_participant_cannot_change_status(client):
     login(client, "anna_k", "Parol2026Anna")
-    r = client.post("/admin/applications/1/status", data={"status": "new", "csrf_token": token(client, "/my")})
+    r = client.post("/admin/applications/1/advance", data={"csrf_token": token(client, "/my")})
     assert r.status_code == 403
 
 
