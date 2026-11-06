@@ -1,7 +1,8 @@
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Application, Event, User
+from app.security import hash_password, verify_password
 
 STATUS_LABELS = {"new": "Новая", "assigned": "Назначено", "done": "Завершено"}
 
@@ -14,14 +15,14 @@ class UserService:
         return self.db.scalar(select(User).where(User.login == login))
 
     def register(self, form, role="participant"):
-        user = User(login=form.login, password=form.password, email=form.email, phone=form.phone, role=role)
+        user = User(login=form.login, password_hash=hash_password(form.password), email=form.email, phone=form.phone, role=role)
         self.db.add(user)
         self.db.commit()
         return user
 
     def authenticate(self, login, password):
         user = self.by_login(login)
-        if user and user.password == password:
+        if user and verify_password(user.password_hash, password):
             return user
         return None
 
@@ -33,10 +34,9 @@ class EventService:
     def search(self, q=""):
         if not q:
             return list(self.db.scalars(select(Event).order_by(Event.event_date)))
-        # поиск по названию
-        sql = f"SELECT id FROM events WHERE title LIKE '%{q}%' ORDER BY event_date"
-        ids = [row[0] for row in self.db.execute(text(sql))]
-        return [self.db.get(Event, i) for i in ids]
+        # поиск по названию, значение q подставляется параметром, а не строкой
+        query = select(Event).where(Event.title.like(f"%{q}%")).order_by(Event.event_date)
+        return list(self.db.scalars(query))
 
     def get(self, event_id):
         return self.db.get(Event, event_id)

@@ -11,7 +11,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     login: Mapped[str] = mapped_column(String(30), unique=True)
-    password: Mapped[str] = mapped_column(String(100))
+    password_hash: Mapped[str] = mapped_column(String(255))
     email: Mapped[str] = mapped_column(String(120))
     phone: Mapped[str] = mapped_column(String(20))
     role: Mapped[str] = mapped_column(String(20), default="participant")

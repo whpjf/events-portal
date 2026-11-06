@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from app.database import SessionLocal
 from app.models import Application, Event, User
+from app.security import hash_password
 
 EVENTS = [
     # (картинка, название, через сколько дней, место, описание)
@@ -44,9 +45,9 @@ def run():
         e = Event(title=title, event_date=now.replace(hour=18) + timedelta(days=days), place=place, description=text, image=image + ".jpg")
         db.add(e)
         events.append(e)
-    admin = User(login="admin_konf", password="Admin2026Konf", email="admin@konferencii.test", phone="+79160000001", role="admin")
-    anna = User(login="anna_k", password="Parol2026Anna", email="anna@mail.test", phone="+79161112233")
-    oleg = User(login="oleg_s", password="Parol2026Oleg", email="oleg@mail.test", phone="+79162223344")
+    admin = User(login="admin_konf", password_hash=hash_password("Admin2026Konf"), email="admin@konferencii.test", phone="+79160000001", role="admin")
+    anna = User(login="anna_k", password_hash=hash_password("Parol2026Anna"), email="anna@mail.test", phone="+79161112233")
+    oleg = User(login="oleg_s", password_hash=hash_password("Parol2026Oleg"), email="oleg@mail.test", phone="+79162223344")
     db.add_all([admin, anna, oleg])
     db.commit()
     rows = [
